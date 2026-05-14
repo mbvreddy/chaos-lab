@@ -14,7 +14,7 @@
     <!-- HTTP endpoint configuration -->
     <httpEndpoint id="defaultHttpEndpoint"
                   httpPort="8080"
-                  httpsPort="${https.port}"
+                  httpsPort="8443"
                   host="*" />
 
     <!-- Automatically expand WAR files and EAR files -->
