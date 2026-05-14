@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heap-oom-liberty
+  labels:
+    app: heap-oom-liberty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heap-oom-liberty
+  template:
+    metadata:
+      labels:
+        app: heap-oom-liberty
+    spec:
+      containers:
+        - name: heap-oom-liberty
+          image: heap-oom-liberty:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          env:
+            - name: JAVA_OPTS
+              value: "-Xmx512m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dumps"
+            - name: crash.oom-policy
+              value: "request"
+            - name: crash.req.total
+              value: "100"
+            - name: crash.time.duration-seconds
+              value: "30"
+            - name: crash.time.target-rps
+              value: "10000"
+            - name: crash.time.auto-allocate-on-deadline
+              value: "true"
+            - name: crash.time.tick-millis
+              value: "500"
+            - name: crash.realistic.alloc-prob
+              value: "0.7"
+            - name: crash.realistic.alloc-size-bytes
+              value: "1048576"
+            - name: crash.realistic.dealloc-prob
+              value: "0.3"
+            - name: crash.realistic.dealloc-size-bytes
+              value: "262144"
+            - name: crash.touch-pages
+              value: "true"
+            - name: crash.max-retained-chunks
+              value: "2147483647"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /alloc/status
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /alloc/status
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: heap-dumps
+              mountPath: /dumps
+      volumes:
+        - name: heap-dumps
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: heap-oom-liberty
+  labels:
+    app: heap-oom-liberty
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: heap-oom-liberty
