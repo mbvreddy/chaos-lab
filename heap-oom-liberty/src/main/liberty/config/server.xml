@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Heap OOM Liberty Server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>restfulWS-3.1</feature>
+        <feature>jsonb-3.0</feature>
+        <feature>jsonp-2.1</feature>
+        <feature>cdi-4.0</feature>
+        <feature>mpConfig-3.1</feature>
+        <feature>concurrent-3.0</feature>
+    </featureManager>
+
+    <!-- HTTP endpoint configuration -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="${http.port}"
+                  httpsPort="${https.port}"
+                  host="*" />
+
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
+
+    <!-- Web application configuration -->
+    <webApplication id="heap-oom-liberty" 
+                    location="heap-oom-liberty.war" 
+                    contextRoot="/">
+        <classloader delegation="parentLast"/>
+    </webApplication>
+
+    <!-- Logging configuration -->
+    <logging traceSpecification="*=info:ai.causa.*=all" 
+             maxFileSize="20" 
+             maxFiles="10" 
+             consoleLogLevel="INFO"/>
+
+    <!-- MicroProfile Config -->
+    <mpConfig>
+        <configSource>
+            <property name="crash.oom-policy" value="request"/>
+            <property name="crash.req.total" value="100"/>
+            <property name="crash.time.duration-seconds" value="30"/>
+            <property name="crash.time.target-rps" value="10000"/>
+            <property name="crash.time.auto-allocate-on-deadline" value="true"/>
+            <property name="crash.time.tick-millis" value="500"/>
+            <property name="crash.realistic.alloc-prob" value="0.7"/>
+            <property name="crash.realistic.alloc-size-bytes" value="1048576"/>
+            <property name="crash.realistic.dealloc-prob" value="0.3"/>
+            <property name="crash.realistic.dealloc-size-bytes" value="262144"/>
+            <property name="crash.touch-pages" value="true"/>
+            <property name="crash.max-retained-chunks" value="2147483647"/>
+        </configSource>
+    </mpConfig>
+
+</server>
+
+<!-- Made with Bob -->
