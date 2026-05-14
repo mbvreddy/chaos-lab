@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn -B clean package
 
 # ===== Runtime Stage with IBM Semeru Runtime =====
-FROM icr.io/appcafe/ibm-semeru-runtimes:open-21-jre
+FROM ibm-semeru-runtimes:open-21-jre-jammy
 
 # Set environment variables for heap dump on OOM
 ENV JAVA_OPTS="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/dumps"
