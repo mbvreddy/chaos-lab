@@ -13,7 +13,7 @@
 
     <!-- HTTP endpoint configuration -->
     <httpEndpoint id="defaultHttpEndpoint"
-                  httpPort="${http.port}"
+                  httpPort="8080"
                   httpsPort="${https.port}"
                   host="*" />
 
